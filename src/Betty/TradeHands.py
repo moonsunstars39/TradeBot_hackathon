@@ -20,7 +20,6 @@ class TradeHands():
                 # aquire positions
                 # Make sure to add a field called "msg_type" with a value of "trade"
                 time.sleep(self._wait_time)
-                
-                
+
         self._trade_thread = Thread(target=_trade_routine)
         self._trade_thread.start()
