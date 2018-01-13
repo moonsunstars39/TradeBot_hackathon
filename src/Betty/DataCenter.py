@@ -14,7 +14,7 @@ class DataCenter():
             self.update_moving_averages()
 
         elif msg_type == "trade":
-            self.update_trade_history()
+            self.update_trade_history(msg)
             self.update_portfolio_history()
 
     def update_trade_history(self, msg):
