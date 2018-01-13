@@ -98,6 +98,12 @@ class Bot():
         self._running = self._running and not self.socket().stop
         return self._running
         
+    #####################
+    ##---- SETTERS ----##
+    #####################
+    def set_currency(self, product):
+        self._currency = product
+        
     #Returns the amount of all holdings in your account including cash
     def get_balances(self, all_currencies=False):
         accounts = self.client().get_accounts()
