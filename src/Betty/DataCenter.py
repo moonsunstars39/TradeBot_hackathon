@@ -15,7 +15,7 @@ class DataCenter():
         msg_type = msg["msg_type"]
         if msg_type == "price_match":
             self.update_crypto_history(msg)
-            self.update_moving_averages()
+            #self.update_moving_averages()
 
         elif msg_type == "trade":
             self.update_trade_history(msg)
@@ -98,7 +98,7 @@ class DataCenter():
             current_time_delta = timedelta(minutes=average_size)
             earliest_time = last_time - current_time_delta
             
-            print(current_time_delta, " -> ", earliest_time)
+            #print(current_time_delta, " -> ", earliest_time)
             
             if self._crypto_history[currency][0]["time"] > earliest_time:
                 continue
@@ -113,12 +113,9 @@ class DataCenter():
             
             msg = {"time": last_time, "simple": new_weighted_average, "weighted": new_weighted_average}
             
-            print("\n\nNEW MOVING AVERAGE: ")
-            print(self._ma_collection)
-            print()
-            
             self._ma_collection[average_size].append(msg) 
         
+        print("SMA entries: ", len(self._ma_collection[5]))
         
     def to_datetime(self, time):
         # get a datetime object from the string and append that to the message
@@ -126,4 +123,37 @@ class DataCenter():
         new_date_str = new_date_str[:10] + " " + new_date_str[11:-7]
         return datetime.strptime(new_date_str, '%Y-%m-%d %H:%M:%S')
 
+    def get_portfolio(self):
+        portfolio = {"BTC-USD": {}, "LTC-USD": {}, "BCH-USD": {}, "ETH-USD": {}, "USD": {}}
+        
+        accounts = self._robot.client().get_accounts()
+        
+        for account in accounts:
+            currency = account["currency"]
+            amount = float(account["balance"])
+            if currency == "BTC":
+                portfolio["BTC-USD"]["amount"] = amount
+                portfolio["BTC-USD"]["value"]  = amount * self._crypto_history["BTC-USD"]["price"] 
+                
+            if currency == "BCH":
+                portfolio["BCH-USD"]["amount"] = amount
+                portfolio["BCH-USD"]["value"]  = amount * self._crypto_history["BCH-USD"]["price"] 
+            
+            if currency == "ETH":
+                portfolio["ETH-USD"]["amount"] = amount
+                portfolio["ETH-USD"]["value"]  = amount * self._crypto_history["ETH-USD"]["price"] 
+            
+            if currency == "LTC":
+                portfolio["LTC-USD"]["amount"] = amount
+                portfolio["LTC-USD"]["value"]  = amount * self._crypto_history["LTC-USD"]["price"] 
+            
+            if currency == "USD":
+                portfolio["USD"]["amount"] = amount
+                portfolio["USD"]["value"]  = amount 
+                
+            
+        
+        portfolio[]
+        
+        return portfolio
 
