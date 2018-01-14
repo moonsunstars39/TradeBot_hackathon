@@ -63,10 +63,11 @@ class Bot():
         self._name = name
         self._currency = currency
         self._running = False
-        self._fake_crypto = 0           #set an initial value for fake crypto
-        self._fake_cash = 1000          #set an initial fake cash value
+        self._fake_crypto = 0          #set an initial value for fake crypto
+        self._fake_cash = 1000         #set an initial fake cash value
 
         self._socket.set_data_center(self._data_center)
+        self._socket.set_bot(self)
         
         self.scramble_credentials()
 
@@ -102,6 +103,7 @@ class Bot():
     ##---- SETTERS ----##
     #####################
     def set_currency(self, product):
+        print("New currency being traded: ", product)
         self._currency = product
         
     #Returns the amount of all holdings in your account including cash
@@ -164,18 +166,22 @@ class Bot():
         #self._data_center.create_portfolio()
         self._running = True
         self._socket.start()
-        #TODO: start some other trading mechanism
+        self._trade_hands.start()
         
         if should_print == True:
             print(self.name()+" has been started")
 
     #Stops the bot's trading sequence and ties up the trading thread
     def stop(self, should_print=True):
+        self._trade_hands.sell()
         self._running = False           #shut down client
         #TODO: tie up trading thread
         self.socket().close()           #shut down web socket.
         
         if should_print == True:
             print(self.name()+" has been stopped")
+            print("Cash:\t", self._fake_cash)
+            print("Crypto:\t", self._fake_crypto)
+            
 
 
