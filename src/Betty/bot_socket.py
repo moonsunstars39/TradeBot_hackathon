@@ -57,4 +57,3 @@ class BotSocket(gdax.WebsocketClient):
         
     def set_data_center(self, data_center):
         self._data_center = data_center
-        self._message_count = 0
