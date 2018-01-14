@@ -124,6 +124,7 @@ class DataCenter():
         return datetime.strptime(new_date_str, '%Y-%m-%d %H:%M:%S')
 
     def get_portfolio(self):
+        #amount is how much of a currency you own. The value is the worth in USD
         portfolio = {"BTC-USD": {}, "LTC-USD": {}, "BCH-USD": {}, "ETH-USD": {}, "USD": {}}
         
         accounts = self._robot.client().get_accounts()
