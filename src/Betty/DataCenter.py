@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timedelta
 import re
 
 class DataCenter():
@@ -7,12 +8,11 @@ class DataCenter():
         self._crypto_history = {"BTC-USD": [], "BCH-USD": [], "LTC-USD": [], "ETH-USD": []}
         self._trade_history  = []
         self._portfolio_history = []
-        self._sma_collection = {5:[], 10:[], 30:[], 60:[], 120: []}
-        self._time_date_regex = re.compile('\dT\d.\d\w') # ^[0-9]*T[0-9]*\.[0-9]*[^0-9]*?
+        self._ma_collection = {1:[], 5:[], 10:[], 30:[], 60:[], 120: []}
+        #self._time_date_regex = re.compile('\dT\d.\d\w') # ^[0-9]*T[0-9]*\.[0-9]*[^0-9]*?
 
     def dispatch_message(self, msg):
         msg_type = msg["msg_type"]
-
         if msg_type == "price_match":
             self.update_crypto_history(msg)
             self.update_moving_averages()
@@ -55,8 +55,7 @@ class DataCenter():
                 USD = amount
 
         msg["total"] = msg["BTC-USD"]["value"] + msg["ETH-USD"]["value"] + msg["LTC-USD"]["value"] + msg["BCH-USD"]["value"] + USD
-
-        msg["time"] = to_datetime(msg["time"])
+        msg["time"] = self.to_datetime(msg["time"])
 
         self._portfolio_history.append(msg)
         
@@ -68,9 +67,9 @@ class DataCenter():
         product_id        =   str(msg['product_id'])
         msg['price']      = float(msg['price'     ])
         msg['side']       =   str(msg['side'      ])
-        msg['time']       =   str(msg['time'      ])
         msg['sequence']   =   int(msg['sequence'  ])
-
+        msg['time']       = self.to_datetime(msg['time'])
+        
         del msg['product_id']
 
         #find appropriate spot for message in price history and insert it.
@@ -84,19 +83,47 @@ class DataCenter():
             self._crypto_history[product_id].insert(length-i, msg)
 
     def update_moving_averages(self):
+        #NOTE: these averages are not calculated correctly. We'll fix this later, but whatever.
+    
         #each entry will take the following form:
         #   {"time": None, "simple": None, "weighted": None}
         
-        for average_length in self._ma_collection:
+        currency = self._robot.currency()
+        if len(self._crypto_history[currency]) == 0:
+            return
+        
+        
+        for average_size in self._ma_collection.keys():
+            last_time = self._crypto_history[currency][-1]["time"]
+            current_time_delta = timedelta(minutes=average_size)
+            earliest_time = last_time - current_time_delta
+            
+            print(current_time_delta, " -> ", earliest_time)
+            
+            if self._crypto_history[currency][0]["time"] > earliest_time:
+                continue
+            
+            index = -1
+            weighted_summation = 0
+            while self._crypto_history[currency][index]["time"] > earliest_time:
+                weighted_summation += self._crypto_history[currency][index]["price"]
+                index -= 1
+                
+            new_weighted_average = weighted_summation / ((-1)*index)
+            
+            msg = {"time": last_time, "simple": new_weighted_average, "weighted": new_weighted_average}
+            
+            print("\n\nNEW MOVING AVERAGE: ")
+            print(self._ma_collection)
+            print()
+            
+            self._ma_collection[average_size].append(msg) 
         
         
     def to_datetime(self, time):
-        # Check the time format to validate
-        if not self._time_date_regex.match(time):
-            print("Time is invalid. This message will not be appended!") #append an error message
-            return None
-
         # get a datetime object from the string and append that to the message
-        return datetime.strptime(time, '%Y%m%dT%H%M%S.%f%Z')
+        new_date_str = time[0:-1]
+        new_date_str = new_date_str[:10] + " " + new_date_str[11:-7]
+        return datetime.strptime(new_date_str, '%Y-%m-%d %H:%M:%S')
 
 

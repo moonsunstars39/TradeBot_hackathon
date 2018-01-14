@@ -10,10 +10,10 @@ class TradeHands():
         self._running = False
         self._long_position  = None
         self._short_position = None
-        
+
     def start(self):
         self._running = True
-        
+
         def _trade_routine():
             while robot._running and self._running:
                 # dump positions
