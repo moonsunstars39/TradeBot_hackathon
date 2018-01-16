@@ -58,28 +58,47 @@ class BotGUI():
         CheckVar5 = IntVar()
         '''
         myList2 = [
-        (" SMA 120"), # CheckVar[4]
-        (" SMA 30"),  # CheckVar[3]
-        (" SMA 10"),  # CheckVar[2]
-        ("  SMA 5"),  # CheckVar[1]
-        ("  SMA 1"),  # CheckVar[0]
+        (" SMA 120", 120), # CheckVar[4]
+        (" SMA 30", 30),  # CheckVar[3]
+        (" SMA 10", 10),  # CheckVar[2]
+        ("  SMA 5", 5),  # CheckVar[1]
+        ("  SMA 1", 1),  # CheckVar[0]
         ]
         i=0;
-        for string in myList2:
-            tk.Checkbutton(text = string, variable = CheckVars[i], onvalue = 1, offvalue = 0, height=1, width = 6, command= lambda:self.update_graphics(CheckVars, myList2)).pack(side=BOTTOM)
+        for string, size in myList2:
+            tk.Checkbutton(text = string, variable = CheckVars[i], onvalue = myList2[i], offvalue = 0, height=1, width = 6, command= lambda:self.create_line_chart(CheckVars, myList2)).pack(side=BOTTOM)
             i+=1
         # ---------------CheckBoxes---------------------
         
     def update_graphics(self, CheckVars, Average_list):
-        print("----------------")
-
         for i in range(len(CheckVars)):
             if CheckVars[i].get() == 1:
                 print(Average_list[i])
+                
+                
+    """
+    portfolio = self._bot._data_center.get_portfolio()
+    total_val = portfolio["USD"]["value"]+portfolio["BTC-USD"]["value"]+portfolio["ETH-USD"]["value"]+portfolio["BCH-USD"]["value"]+portfolio["LTC-USD"]["value"]
+    BTC_percent = portfolio["BTC-USD"]["value"]/total_val
+    LTC_percent = portfolio["LTC-USD"]["value"]/total_val
+    ETH_percent = portfolio["ETH-USD"]["value"]/total_val
+    BCH_percent = portfolio["BCH-USD"]["value"]/total_val
+    USD_percent = portfolio["USD"]["value"]/total_val
+    """
+    
+    def create_line_chart(self, CheckVars, Average_list):
+        show_these_mas = []
+        for i in range(len(CheckVars)):
+            if CheckVars[i].get() == 1:
+                ma = {"average_size": Average_list[i], "on": True}
+                show_these_mas.append()
+    
+        ma_collection       = self._bot._data_center._ma_collection
+        crypto_history      = self._bot._data_center._crypto_history
+        portfolio_history   = self._bot._data_center._portfolio_history
+        trade_history       = self._bot._data_center._trade_history
         
-
-
-
+        
 
 
 

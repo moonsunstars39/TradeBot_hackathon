@@ -151,10 +151,6 @@ class DataCenter():
             if currency == "USD":
                 portfolio["USD"]["amount"] = amount
                 portfolio["USD"]["value"]  = amount 
-                
-            
-        
-        portfolio[]
         
         return portfolio
 
